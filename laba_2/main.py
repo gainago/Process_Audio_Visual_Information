@@ -67,7 +67,6 @@ if __name__ == '__main__':
 ext = '.png'
 prev = 'input/'
 
-# Убираем глобальный WINDOW_SIZE, будем задавать окна явно
 K_WAN = 0.2
 
 
