@@ -54,7 +54,7 @@ if __name__ == '__main__':
     save_image(mono_filtered, 'results/photo_filtered_monochrome.png')
     print("Отфильтрованное монохромное (ранг 7/9): results/photo_filtered_monochrome.png")
 
-    diff_mono = np.abs(mono.astype(int) - mono_filtered.astype(int)).astype(np.uint8)
+    diff_mono = np.abs(mono.astype(int) - mono_filtered.astype(int)).astype(np.uint8) #это работает так же как xor
     save_image(diff_mono, 'results/photo_diff_monochrome.png')
     print("Разностное монохромное (хог): results/photo_diff_monochrome.png")
 
