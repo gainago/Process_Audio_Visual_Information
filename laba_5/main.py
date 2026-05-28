@@ -3,9 +3,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image
 
-INPUT_FOLDER = "english_chars"
-OUTPUT_CSV = "features.csv"
-OUTPUT_PROFILES_FOLDER = "profiles"
+INPUT_FOLDER = "osmanya_chars"
+OUTPUT_CSV = "osmanya_features.csv"
+OUTPUT_PROFILES_FOLDER = "osmanya_profiles"
 
 if not os.path.exists(OUTPUT_PROFILES_FOLDER):
     os.makedirs(OUTPUT_PROFILES_FOLDER)
@@ -116,16 +116,19 @@ if __name__ == "__main__":
         
         profile_x, profile_y = profiles
         
+        # Извлекаем только код Unicode (например, U10480) для заголовка, чтобы не было предупреждений
+        letter_display = letter.split('_')[0]   # или просто letter.replace('_', ' ')
+        
         plot_and_save_profile(
             profile_x, 
-            f"Вертикальный профиль символа '{letter}'", 
+            f"Вертикальный профиль символа '{letter_display}'", 
             "Номер столбца", "Сумма чёрных пикселей",
             os.path.join(OUTPUT_PROFILES_FOLDER, f"{letter}_profile_x.png")
         )
         
         plot_and_save_profile(
             profile_y, 
-            f"Горизонтальный профиль символа '{letter}'", 
+            f"Горизонтальный профиль символа '{letter_display}'", 
             "Номер строки", "Сумма чёрных пикселей",
             os.path.join(OUTPUT_PROFILES_FOLDER, f"{letter}_profile_y.png")
         )
