@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image, ImageDraw
 
-img_path = "result/monochrome_transparent.bmp"
+img_path = "result/monochrome_transparent_72.bmp"
 img = Image.open(img_path).convert('RGBA') 
 arr = np.array(img)
 mask = (arr[:, :, 0] < 128).astype(int)     
@@ -43,11 +43,11 @@ for (x1, y1, x2, y2) in all_chars:
     # Толщина линии = 2 пикселя, цвет = зелёный (0, 255, 0)
     draw.rectangle([x1, y1, x2, y2], outline=(0, 255, 0, 255), width=2)
 
-output_path = "result/segmented_on_original.png"
+output_path = "result/segmented_on_original_72.png"
 img.save(output_path)
 print(f"Сохранено: {output_path}")
 
-with open("segmentation_coords.csv", "w") as f:
+with open("segmentation_coords_72.csv", "w") as f:
     f.write("x1;y1;x2;y2\n")
     for x1, y1, x2, y2 in all_chars:
         f.write(f"{x1};{y1};{x2};{y2}\n")

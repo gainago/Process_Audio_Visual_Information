@@ -2,8 +2,8 @@ import os
 import numpy as np
 from PIL import Image
 
-input_path = "input/screenshot.png"
-output_path = "result/monochrome_transparent.bmp"
+input_path = "input/screenshot_72.png"
+output_path = "result/monochrome_transparent_72.bmp"
 
 os.makedirs("result", exist_ok=True)
 

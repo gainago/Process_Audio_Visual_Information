@@ -17,36 +17,36 @@
 ### 1. Эталонные изображения символов 
 | № | Символ | Unicode | Размер (px) | Изображение |
 |:-:|:------:|:-------:|:-----------:|:-----------:|
-| 1 | 𐒀 | U+10480 | 82×108 | ![U10480](osmanya_chars/U10480_𐒀.png) |
-| 2 | 𐒁 | U+10481 | 80×106 | ![U10481](osmanya_chars/U10481_𐒁.png) |
-| 3 | 𐒂 | U+10482 | 78×105 | ![U10482](osmanya_chars/U10482_𐒂.png) |
-| 4 | 𐒃 | U+10483 | 84×107 | ![U10483](osmanya_chars/U10483_𐒃.png) |
-| 5 | 𐒄 | U+10484 | 82×105 | ![U10484](osmanya_chars/U10484_𐒄.png) |
-| 6 | 𐒅 | U+10485 | 76×104 | ![U10485](osmanya_chars/U10485_𐒅.png) |
-| 7 | 𐒆 | U+10486 | 86×106 | ![U10486](osmanya_chars/U10486_𐒆.png) |
-| 8 | 𐒇 | U+10487 | 84×110 | ![U10487](osmanya_chars/U10487_𐒇.png) |
-| 9 | 𐒈 | U+10488 | 80×105 | ![U10488](osmanya_chars/U10488_𐒈.png) |
-| 10 | 𐒉 | U+10489 | 78×103 | ![U10489](osmanya_chars/U10489_𐒉.png) |
-| 11 | 𐒊 | U+1048A | 72×104 | ![U1048A](osmanya_chars/U1048A_𐒊.png) |
-| 12 | 𐒋 | U+1048B | 84×107 | ![U1048B](osmanya_chars/U1048B_𐒋.png) |
-| 13 | 𐒌 | U+1048C | 80×108 | ![U1048C](osmanya_chars/U1048C_𐒌.png) |
-| 14 | 𐒍 | U+1048D | 86×105 | ![U1048D](osmanya_chars/U1048D_𐒍.png) |
-| 15 | 𐒎 | U+1048E | 78×106 | ![U1048E](osmanya_chars/U1048E_𐒎.png) |
-| 16 | 𐒏 | U+1048F | 82×107 | ![U1048F](osmanya_chars/U1048F_𐒏.png) |
-| 17 | 𐒐 | U+10490 | 86×108 | ![U10490](osmanya_chars/U10490_𐒐.png) |
-| 18 | 𐒑 | U+10491 | 84×106 | ![U10491](osmanya_chars/U10491_𐒑.png) |
-| 19 | 𐒒 | U+10492 | 82×105 | ![U10492](osmanya_chars/U10492_𐒒.png) |
-| 20 | 𐒓 | U+10493 | 86×107 | ![U10493](osmanya_chars/U10493_𐒓.png) |
-| 21 | 𐒔 | U+10494 | 80×108 | ![U10494](osmanya_chars/U10494_𐒔.png) |
-| 22 | 𐒕 | U+10495 | 76×105 | ![U10495](osmanya_chars/U10495_𐒕.png) |
-| 23 | 𐒖 | U+10496 | 78×108 | ![U10496](osmanya_chars/U10496_𐒖.png) |
-| 24 | 𐒗 | U+10497 | 82×107 | ![U10497](osmanya_chars/U10497_𐒗.png) |
-| 25 | 𐒘 | U+10498 | 74×106 | ![U10498](osmanya_chars/U10498_𐒘.png) |
-| 26 | 𐒙 | U+10499 | 86×105 | ![U10499](osmanya_chars/U10499_𐒙.png) |
-| 27 | 𐒚 | U+1049A | 82×108 | ![U1049A](osmanya_chars/U1049A_𐒚.png) |
-| 28 | 𐒛 | U+1049B | 84×107 | ![U1049B](osmanya_chars/U1049B_𐒛.png) |
-| 29 | 𐒜 | U+1049C | 86×108 | ![U1049C](osmanya_chars/U1049C_𐒜.png) |
-| 30 | 𐒝 | U+1049D | 80×106 | ![U1049D](osmanya_chars/U1049D_𐒝.png) |
+| 1 | 𐒀 | U+10480 | 82×108 | ![U10480](osmanya_chars/U10480_𐒀.bmp) |
+| 2 | 𐒁 | U+10481 | 80×106 | ![U10481](osmanya_chars/U10481_𐒁.bmp) |
+| 3 | 𐒂 | U+10482 | 78×105 | ![U10482](osmanya_chars/U10482_𐒂.bmp) |
+| 4 | 𐒃 | U+10483 | 84×107 | ![U10483](osmanya_chars/U10483_𐒃.bmp) |
+| 5 | 𐒄 | U+10484 | 82×105 | ![U10484](osmanya_chars/U10484_𐒄.bmp) |
+| 6 | 𐒅 | U+10485 | 76×104 | ![U10485](osmanya_chars/U10485_𐒅.bmp) |
+| 7 | 𐒆 | U+10486 | 86×106 | ![U10486](osmanya_chars/U10486_𐒆.bmp) |
+| 8 | 𐒇 | U+10487 | 84×110 | ![U10487](osmanya_chars/U10487_𐒇.bmp) |
+| 9 | 𐒈 | U+10488 | 80×105 | ![U10488](osmanya_chars/U10488_𐒈.bmp) |
+| 10 | 𐒉 | U+10489 | 78×103 | ![U10489](osmanya_chars/U10489_𐒉.bmp) |
+| 11 | 𐒊 | U+1048A | 72×104 | ![U1048A](osmanya_chars/U1048A_𐒊.bmp) |
+| 12 | 𐒋 | U+1048B | 84×107 | ![U1048B](osmanya_chars/U1048B_𐒋.bmp) |
+| 13 | 𐒌 | U+1048C | 80×108 | ![U1048C](osmanya_chars/U1048C_𐒌.bmp) |
+| 14 | 𐒍 | U+1048D | 86×105 | ![U1048D](osmanya_chars/U1048D_𐒍.bmp) |
+| 15 | 𐒎 | U+1048E | 78×106 | ![U1048E](osmanya_chars/U1048E_𐒎.bmp) |
+| 16 | 𐒏 | U+1048F | 82×107 | ![U1048F](osmanya_chars/U1048F_𐒏.bmp) |
+| 17 | 𐒐 | U+10490 | 86×108 | ![U10490](osmanya_chars/U10490_𐒐.bmp) |
+| 18 | 𐒑 | U+10491 | 84×106 | ![U10491](osmanya_chars/U10491_𐒑.bmp) |
+| 19 | 𐒒 | U+10492 | 82×105 | ![U10492](osmanya_chars/U10492_𐒒.bmp) |
+| 20 | 𐒓 | U+10493 | 86×107 | ![U10493](osmanya_chars/U10493_𐒓.bmp) |
+| 21 | 𐒔 | U+10494 | 80×108 | ![U10494](osmanya_chars/U10494_𐒔.bmp) |
+| 22 | 𐒕 | U+10495 | 76×105 | ![U10495](osmanya_chars/U10495_𐒕.bmp) |
+| 23 | 𐒖 | U+10496 | 78×108 | ![U10496](osmanya_chars/U10496_𐒖.bmp) |
+| 24 | 𐒗 | U+10497 | 82×107 | ![U10497](osmanya_chars/U10497_𐒗.bmp) |
+| 25 | 𐒘 | U+10498 | 74×106 | ![U10498](osmanya_chars/U10498_𐒘.bmp) |
+| 26 | 𐒙 | U+10499 | 86×105 | ![U10499](osmanya_chars/U10499_𐒙.bmp) |
+| 27 | 𐒚 | U+1049A | 82×108 | ![U1049A](osmanya_chars/U1049A_𐒚.bmp) |
+| 28 | 𐒛 | U+1049B | 84×107 | ![U1049B](osmanya_chars/U1049B_𐒛.bmp) |
+| 29 | 𐒜 | U+1049C | 86×108 | ![U1049C](osmanya_chars/U1049C_𐒜.bmp) |
+| 30 | 𐒝 | U+1049D | 80×106 | ![U1049D](osmanya_chars/U1049D_𐒝.bmp) |
 
 ---
 
@@ -157,3 +157,6 @@ $$Proj_Y[x] = \sum_{y=0}^{H-1} f(x, y)$$
 
 
 ---
+
+### 5. Дополнительно
+Дополнительно были сгенерированны символы с размером 72 pt для лабораторной 7.

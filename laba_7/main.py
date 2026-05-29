@@ -1,252 +1,181 @@
 import os
+import csv
 import numpy as np
-import matplotlib.pyplot as plt
 from PIL import Image
-from scipy.spatial.distance import euclidean
 
-# ================== НАСТРОЙКИ ==================
-REF_DIR = "../laba_5/osmanya_chars"               # папка с эталонными буквами
-INPUT_IMAGE = "../laba_6/result/monochrome_transparent.png"
-COORDS_CSV = "../laba_6/segmentation_coords.csv"
-OUTPUT_HYPOTHESES = "hypotheses.txt"
-GROUND_TRUTH = "𐒖𐒒𐒏𐒚𐒃𐒗𐒋𐒐𐒖𐒔𐒖𐒕𐒒𐒝𐒐𐒝𐒈𐒔𐒖𐒖𐒆𐒖𐒕𐒂𐒖𐒔𐒖𐒕"
+# ========== Параметры ==========
+input_image_path = "../laba_6/result/monochrome_transparent_72.bmp"
+segmentation_csv = "../laba_6/segmentation_coords_72.csv"
+alphabet_features_csv = "../laba_5/osmanya_features_72.csv"
+alphabet_images_dir = "../laba_5/osmanya_chars"   # нужен только для NCC
+output_dir = "result_72"
+ground_truth = "𐒖𐒒𐒏𐒚𐒃𐒗𐒋𐒐𐒖𐒔𐒖𐒕𐒒𐒝𐒐𐒝𐒈𐒔𐒖𐒖𐒆𐒖𐒕𐒂𐒖𐒔𐒖𐒕"
 
-# Размер, к которому приводим все символы
-TARGET_HEIGHT = 40
+# ========== ВЫБОР МЕТРИКИ ==========
+similarity_metric = 'euclidean_features'  # 'euclidean_features' или 'ncc'
+# ====================================
 
-# ================== ФУНКЦИИ ==================
+os.makedirs(output_dir, exist_ok=True)
 
-def extract_features_from_image(img):
-    """Извлекает нормализованные признаки из бинарного изображения."""
-    arr = np.array(img.convert('L'))
-    mask = (arr < 128).astype(int)
+# ========== 1. Загрузка изображения и сегментации ==========
+img = Image.open(input_image_path).convert('1')  # 1-битный монохром
+img_array = np.array(img, dtype=np.uint8)  # 0 = чёрный (буква), 1 = белый (фон)
 
-    rows = np.any(mask, axis=1)
-    cols = np.any(mask, axis=0)
-    y_min, y_max = np.where(rows)[0][[0, -1]]
-    x_min, x_max = np.where(cols)[0][[0, -1]]
-    cropped = mask[y_min:y_max+1, x_min:x_max+1]
+with open(segmentation_csv, 'r') as f:
+    reader = csv.reader(f, delimiter=';')
+    next(reader)
+    bboxes = [(int(row[0]), int(row[1]), int(row[2]), int(row[3])) for row in reader]
 
-    h, w = cropped.shape
-    scale = TARGET_HEIGHT / h
-    new_w = int(w * scale)
-    if new_w == 0:
-        new_w = 1
-    pil_crop = Image.fromarray((cropped * 255).astype(np.uint8))
-    pil_resized = pil_crop.resize((new_w, TARGET_HEIGHT), Image.Resampling.NEAREST)
-    resized_arr = np.array(pil_resized) > 128
+print(f"Найдено {len(bboxes)} символов для распознавания.")
 
-    max_side = max(TARGET_HEIGHT, new_w)
-    pad_h = max_side - TARGET_HEIGHT
-    pad_w = max_side - new_w
-    pad_top = pad_h // 2
-    pad_bottom = pad_h - pad_top
-    pad_left = pad_w // 2
-    pad_right = pad_w - pad_left
-    padded = np.pad(resized_arr, ((pad_top, pad_bottom), (pad_left, pad_right)), mode='constant', constant_values=0)
+# ========== 2. Загрузка эталонов (в зависимости от метрики) ==========
+alphabet_features = []   # для признаковой метрики
+alphabet_images = {}     # для NCC
 
-    mass = np.sum(padded)
-    if mass == 0:
-        return np.zeros(6)
+if similarity_metric == 'euclidean_features':
+    # Загружаем признаки из CSV
+    with open(alphabet_features_csv, 'r') as f:
+        reader = csv.DictReader(f, delimiter=';')
+        for row in reader:
+            # Извлекаем чистый символ (отбрасываем префикс U104xx_)
+            full_letter = row['Letter']
+            letter = full_letter.split('_')[-1]  # например, '𐒗'
+            
+            mass = int(row['Q1']) + int(row['Q2']) + int(row['Q3']) + int(row['Q4'])
+            area = int(row['W']) * int(row['H'])
+            mass_norm = mass / area if area > 0 else 0
+            cx_rel = float(row['cx_rel'])
+            cy_rel = float(row['cy_rel'])
+            Ix_norm = float(row['Ix_norm'])
+            Iy_norm = float(row['Iy_norm'])
+            alphabet_features.append({
+                'letter': letter,
+                'features': np.array([mass_norm, cx_rel, cy_rel, Ix_norm, Iy_norm])
+            })
+else:
+    # Загружаем бинарные изображения эталонов (для NCC)
+    for fname in os.listdir(alphabet_images_dir):
+        if fname.endswith('.bmp'):
+            # Извлекаем чистый символ из имени файла (отбрасываем префикс)
+            full_name = fname.replace('.bmp', '')
+            letter = full_name.split('_')[-1]  # например, '𐒗'
+            
+            img_letter = Image.open(os.path.join(alphabet_images_dir, fname)).convert('1')
+            alphabet_images[letter] = np.array(img_letter, dtype=np.uint8)  # 0 = чёрный, 1 = белый
 
-    y_coords, x_coords = np.indices(padded.shape)
-    cx = np.sum(x_coords * padded) / mass
-    cy = np.sum(y_coords * padded) / mass
+# ========== 3. Вспомогательные функции для NCC ==========
+def resize_to_fixed_size(binary_img, size=(32, 32)):
+    """Приводит бинарное изображение к фиксированному размеру (32x32)"""
+    pil_img = Image.fromarray((binary_img * 255).astype(np.uint8))
+    resized = pil_img.resize(size, Image.Resampling.NEAREST)
+    return np.array(resized) // 255
 
-    h_pad, w_pad = padded.shape
-    cx_norm = cx / w_pad
-    cy_norm = cy / h_pad
+def ncc_similarity(img1, img2):
+    """Нормированная кросс-корреляция для бинарных изображений (0/1)"""
+    a = 2 * img1.astype(np.float32) - 1
+    b = 2 * img2.astype(np.float32) - 1
+    mu_a = np.mean(a)
+    mu_b = np.mean(b)
+    a_centered = a - mu_a
+    b_centered = b - mu_b
+    numerator = np.sum(a_centered * b_centered)
+    denominator = np.sqrt(np.sum(a_centered**2) * np.sum(b_centered**2))
+    if denominator == 0:
+        return 0
+    return numerator / denominator
 
-    y_centered = y_coords - cy
-    x_centered = x_coords - cx
-    Ixx = np.sum(padded * y_centered**2) / mass
-    Iyy = np.sum(padded * x_centered**2) / mass
-    Ixy = np.sum(padded * x_centered * y_centered) / mass
+# ========== 4. Обработка каждого символа ==========
+all_hypotheses = []
+best_letters = []
 
-    scale_norm = (h_pad * w_pad)
-    Ixx_norm = Ixx / scale_norm
-    Iyy_norm = Iyy / scale_norm
-    Ixy_norm = Ixy / scale_norm
-
-    return np.array([mass, cx_norm, cy_norm, Ixx_norm, Iyy_norm, Ixy_norm])
-
-def save_symbol_profile(img, output_path, title=""):
-    """Сохраняет профили (гор/верт) в виде картинки."""
-    arr = np.array(img.convert('L'))
-    mask = (arr < 128).astype(int)
-    h_profile = mask.sum(axis=1)
-    v_profile = mask.sum(axis=0)
+for idx, (x1, y1, x2, y2) in enumerate(bboxes, start=1):
+    subimg = img_array[y1:y2+1, x1:x2+1]  # 0 = чёрный, 1 = белый
     
-    plt.figure(figsize=(8, 3))
-    plt.subplot(1, 2, 1)
-    plt.bar(range(len(h_profile)), h_profile, color='black')
-    plt.title(f"{title} - гор. профиль")
-    plt.xlabel("Строка")
-    plt.ylabel("Сумма")
+    # Сохраняем вырезку
+    letter_dir = os.path.join(output_dir, f"letter_{idx}")
+    os.makedirs(letter_dir, exist_ok=True)
+    Image.fromarray((subimg * 255).astype(np.uint8)).convert('L').save(
+        os.path.join(letter_dir, "section.bmp")
+    )
     
-    plt.subplot(1, 2, 2)
-    plt.bar(range(len(v_profile)), v_profile, color='black')
-    plt.title(f"{title} - верт. профиль")
-    plt.xlabel("Столбец")
-    plt.ylabel("Сумма")
-    
-    plt.tight_layout()
-    plt.savefig(output_path, dpi=100)
-    plt.close()
-
-def save_features_csv(features, output_path):
-    """Сохраняет вектор признаков в CSV."""
-    with open(output_path, 'w', encoding='utf-8') as f:
-        f.write("feature,value\n")
-        f.write(f"mass,{features[0]}\n")
-        f.write(f"cx_norm,{features[1]}\n")
-        f.write(f"cy_norm,{features[2]}\n")
-        f.write(f"Ixx_norm,{features[3]}\n")
-        f.write(f"Iyy_norm,{features[4]}\n")
-        f.write(f"Ixy_norm,{features[5]}\n")
-
-def save_cropped_symbol(image_path, bbox, output_path):
-    """Вырезает символ по bbox и сохраняет на прозрачном фоне."""
-    img = Image.open(image_path).convert('RGBA')
-    x1, y1, x2, y2 = bbox
-    cropped = img.crop((x1, y1, x2, y2))
-    cropped.save(output_path, format='PNG')
-
-def export_reference_profiles(ref_dir, out_root="result/signs"):
-    """Сохраняет эталоны: symbol.png, profile.png, features.csv"""
-    os.makedirs(out_root, exist_ok=True)
-    for fname in os.listdir(ref_dir):
-        if not (fname.endswith(".png") and '_' in fname):
-            continue
-        char = fname.split('_')[1].replace(".png", "")
-        path = os.path.join(ref_dir, fname)
-        img = Image.open(path)
-        features = extract_features_from_image(img)
+    if similarity_metric == 'euclidean_features':
+        # ---- Евклидово расстояние по признакам ----
+        height, width = subimg.shape
+        binary = 1 - subimg  # буква = 1, фон = 0
+        y_coords, x_coords = np.where(binary == 1)
+        mass = np.sum(binary)
+        area = width * height
+        mass_norm = mass / area if area > 0 else 0
+        if mass == 0:
+            cx_rel = 0.5
+            cy_rel = 0.5
+            Ix_norm = 0
+            Iy_norm = 0
+        else:
+            cx = np.mean(x_coords)
+            cy = np.mean(y_coords)
+            cx_rel = cx / width
+            cy_rel = cy / height
+            Ix = np.sum((y_coords - cy) ** 2)
+            Iy = np.sum((x_coords - cx) ** 2)
+            Ix_norm = Ix / area
+            Iy_norm = Iy / area
+        sample_features = np.array([mass_norm, cx_rel, cy_rel, Ix_norm, Iy_norm])
         
-        char_dir = os.path.join(out_root, char)
-        os.makedirs(char_dir, exist_ok=True)
+        similarities = []
+        for entry in alphabet_features:
+            dist = np.linalg.norm(sample_features - entry['features'])
+            similarity = 1 / (1 + dist)  # нулевое расстояние → 1
+            similarities.append((entry['letter'], similarity))
+        similarities.sort(key=lambda x: x[1], reverse=True)
         
-        # Оригинальная буква
-        img.save(os.path.join(char_dir, "symbol.png"))
-        # Профиль
-        save_symbol_profile(img, os.path.join(char_dir, "profile.png"), f"Эталон {char}")
-        # Признаки
-        save_features_csv(features, os.path.join(char_dir, "features.csv"))
+    else:  # similarity_metric == 'ncc'
+        # ---- Нормированная кросс-корреляция ----
+        subimg_fixed = resize_to_fixed_size(subimg)
+        similarities = []
+        for letter, ref_img in alphabet_images.items():
+            ref_fixed = resize_to_fixed_size(ref_img)
+            sim = ncc_similarity(subimg_fixed, ref_fixed)
+            similarities.append((letter, sim))
+        similarities.sort(key=lambda x: x[1], reverse=True)
     
-    print(f"Эталонные файлы сохранены в {out_root}")
+    all_hypotheses.append(similarities)
+    best_letters.append(similarities[0][0])
 
-def load_reference_features(ref_dir):
-    """Загружает признаки эталонов."""
-    ref_features = {}
-    for fname in os.listdir(ref_dir):
-        if not (fname.endswith(".png") and '_' in fname):
-            continue
-        char = fname.split('_')[1].replace(".png", "")
-        path = os.path.join(ref_dir, fname)
-        img = Image.open(path)
-        ref_features[char] = extract_features_from_image(img)
-    return ref_features
+# ========== 5. Сохранение гипотез ==========
+with open(os.path.join(output_dir, "hypotheses_72.txt"), 'w', encoding='utf-8') as f:
+    for i, hyp in enumerate(all_hypotheses, start=1):
+        hyp_str = ", ".join([f"(\"{letter}\", {sim:.3f})" for letter, sim in hyp])
+        f.write(f"{i}: [{hyp_str}]\n")
 
-def read_segmentation_coords(csv_path):
-    """Читает координаты сегментированных символов."""
-    coords = []
-    with open(csv_path, 'r') as f:
-        lines = f.readlines()[1:]  # пропускаем заголовок
-        for line in lines:
-            parts = line.strip().split(';')
-            if len(parts) == 4:
-                coords.append(tuple(map(int, parts)))
-    return coords
+print(f"Гипотезы сохранены в result/hypotheses.txt (метрика: {similarity_metric})")
 
-def export_segmented_symbols(image_path, coords, out_root="result/parse_input"):
-    """Сохраняет сегментированные символы: letter.png, profile.png, features.csv"""
-    os.makedirs(out_root, exist_ok=True)
-    img = Image.open(image_path).convert('RGBA')
-    arr = np.array(img)
-    mask = (arr[:, :, 0] < 128).astype(int)
-    
-    features_list = []
-    for idx, (x1, y1, x2, y2) in enumerate(coords, 1):
-        letter_dir = os.path.join(out_root, f"letter_{idx}")
-        os.makedirs(letter_dir, exist_ok=True)
-        
-        char_mask = mask[y1:y2+1, x1:x2+1]
-        char_img = Image.fromarray((char_mask * 255).astype(np.uint8))
-        features = extract_features_from_image(char_img)
-        features_list.append(features)
-        
-        # Вырезанная буква (прозрачный фон)
-        save_cropped_symbol(image_path, (x1, y1, x2, y2), os.path.join(letter_dir, "letter.png"))
-        # Профиль
-        save_symbol_profile(char_img, os.path.join(letter_dir, "profile.png"), f"Символ {idx}")
-        # Признаки
-        save_features_csv(features, os.path.join(letter_dir, "features.csv"))
-    
-    print(f"Сегментированные символы сохранены в {out_root}")
-    return features_list
+# ========== 6. Лучшие гипотезы и сравнение с истиной ==========
+best_string = ''.join(best_letters)
+print("\n===== Лучшие гипотезы (первый столбец) =====")
+print(best_string)
 
-def compute_similarity(feat1, feat2):
-    dist = euclidean(feat1, feat2)
-    return 1.0 / (1.0 + dist)
+if ground_truth:
+    truth_chars = [ch for ch in ground_truth if not ch.isspace()]
+    total = len(truth_chars)
+    correct = 0
+    errors = []
+    for i, (best, truth) in enumerate(zip(best_letters, truth_chars)):
+        if best == truth:
+            correct += 1
+        else:
+            errors.append((i+1, best, truth))
+    accuracy = correct / total * 100 if total > 0 else 0
+    print(f"\n===== Сравнение с истиной =====")
+    print(f"Всего символов: {total}")
+    print(f"Верно: {correct}")
+    print(f"Ошибок: {total - correct}")
+    print(f"Точность: {accuracy:.1f}%")
+    if errors:
+        print("Ошибки (позиция, распознано, истина):")
+        for pos, b, t in errors:
+            print(f"  {pos}: '{b}' вместо '{t}'")
+else:
+    print("\nИстинная строка не введена, сравнение не выполнено.")
 
-def recognize_characters(seg_features, ref_features):
-    hypotheses_list = []
-    for seg_feat in seg_features:
-        hyp = [(char, compute_similarity(seg_feat, ref_feat)) for char, ref_feat in ref_features.items()]
-        hyp.sort(key=lambda x: x[1], reverse=True)
-        hypotheses_list.append(hyp)
-    return hypotheses_list
-
-def save_hypotheses(hyp_list, out_path):
-    with open(out_path, 'w', encoding='utf-8') as f:
-        for idx, hyp in enumerate(hyp_list):
-            hyp_str = ", ".join([f"('{char}', {sim:.4f})" for char, sim in hyp])
-            f.write(f"{idx+1}: [{hyp_str}]\n")
-    print(f"Гипотезы сохранены в {out_path}")
-
-def get_recognized_string(hyp_list):
-    return ''.join([hyp[0][0] for hyp in hyp_list])
-
-def evaluate_accuracy(ground, recognized):
-    if len(ground) != len(recognized):
-        print("Предупреждение: длина строк разная, сравнение по минимальной длине.")
-        min_len = min(len(ground), len(recognized))
-        ground = ground[:min_len]
-        recognized = recognized[:min_len]
-    errors = sum(1 for g, r in zip(ground, recognized) if g != r)
-    total = len(ground)
-    accuracy = (total - errors) / total * 100.1  if total > 0 else 0
-    return errors, accuracy
-
-# ================== ОСНОВНАЯ ЧАСТЬ ==================
-
-if __name__ == "__main__":
-    print("Экспорт эталонных букв...")
-    export_reference_profiles(REF_DIR, "result/signs")
-    
-    ref_features = load_reference_features(REF_DIR)
-    print(f"Загружено {len(ref_features)} эталонов.")
-    
-    if not os.path.exists(COORDS_CSV):
-        print("Файл координат не найден. Запустите find_letters.py сначала.")
-        exit(1)
-    
-    coords = read_segmentation_coords(COORDS_CSV)
-    print(f"Найдено {len(coords)} сегментированных символов.")
-    
-    print("Экспорт сегментированных символов...")
-    seg_features = export_segmented_symbols(INPUT_IMAGE, coords, "result/parse_input")
-    
-    print("Распознавание...")
-    hypotheses = recognize_characters(seg_features, ref_features)
-    save_hypotheses(hypotheses, OUTPUT_HYPOTHESES)
-    
-    recognized = get_recognized_string(hypotheses)
-    print(f"Распознанная строка: {recognized}")
-    
-    if GROUND_TRUTH:
-        errors, accuracy = evaluate_accuracy(GROUND_TRUTH, recognized)
-        print(f"Количество ошибок: {errors}")
-        print(f"Процент верно распознанных: {accuracy:.2f}%")
-    else:
-        print("Не задана строка истины, оценка не производится.")
+print(f"\nРезультаты сохранены в папке {output_dir}")

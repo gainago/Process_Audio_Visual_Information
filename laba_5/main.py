@@ -3,9 +3,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image
 
-INPUT_FOLDER = "osmanya_chars"
-OUTPUT_CSV = "osmanya_features.csv"
-OUTPUT_PROFILES_FOLDER = "osmanya_profiles"
+INPUT_FOLDER = "osmanya_chars_72"
+OUTPUT_CSV = "osmanya_features_72.csv"
+OUTPUT_PROFILES_FOLDER = "osmanya_profiles_72"
 
 if not os.path.exists(OUTPUT_PROFILES_FOLDER):
     os.makedirs(OUTPUT_PROFILES_FOLDER)
