@@ -4,15 +4,15 @@ import numpy as np
 from PIL import Image
 
 # ========== Параметры ==========
-input_image_path = "../laba_6/result/monochrome_transparent_72.bmp"
-segmentation_csv = "../laba_6/segmentation_coords_72.csv"
-alphabet_features_csv = "../laba_5/osmanya_features_72.csv"
+input_image_path = "../laba_6/result/monochrome_transparent.bmp"
+segmentation_csv = "../laba_6/segmentation_coords.csv"
+alphabet_features_csv = "../laba_5/osmanya_features.csv"
 alphabet_images_dir = "../laba_5/osmanya_chars"   # нужен только для NCC
-output_dir = "result_72"
+output_dir = "result"
 ground_truth = "𐒖𐒒𐒏𐒚𐒃𐒗𐒋𐒐𐒖𐒔𐒖𐒕𐒒𐒝𐒐𐒝𐒈𐒔𐒖𐒖𐒆𐒖𐒕𐒂𐒖𐒔𐒖𐒕"
 
 # ========== ВЫБОР МЕТРИКИ ==========
-similarity_metric = 'euclidean_features'  # 'euclidean_features' или 'ncc'
+similarity_metric = 'ncc'  # 'euclidean_features' или 'ncc'
 # ====================================
 
 os.makedirs(output_dir, exist_ok=True)
@@ -143,12 +143,12 @@ for idx, (x1, y1, x2, y2) in enumerate(bboxes, start=1):
     best_letters.append(similarities[0][0])
 
 # ========== 5. Сохранение гипотез ==========
-with open(os.path.join(output_dir, "hypotheses_72.txt"), 'w', encoding='utf-8') as f:
+with open(os.path.join(output_dir, "hypotheses_ncc.txt"), 'w', encoding='utf-8') as f:
     for i, hyp in enumerate(all_hypotheses, start=1):
         hyp_str = ", ".join([f"(\"{letter}\", {sim:.3f})" for letter, sim in hyp])
         f.write(f"{i}: [{hyp_str}]\n")
 
-print(f"Гипотезы сохранены в result/hypotheses.txt (метрика: {similarity_metric})")
+print(f"Гипотезы сохранены в result/hypotheses_ncc.txt (метрика: {similarity_metric})")
 
 # ========== 6. Лучшие гипотезы и сравнение с истиной ==========
 best_string = ''.join(best_letters)
