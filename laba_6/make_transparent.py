@@ -2,9 +2,8 @@ import os
 import numpy as np
 from PIL import Image
 
-# Пути
 input_path = "input/screenshot.png"
-output_path = "result/monochrome_transparent.png"
+output_path = "result/monochrome_transparent.bmp"
 
 os.makedirs("result", exist_ok=True)
 
@@ -12,25 +11,23 @@ img = Image.open(input_path).convert('RGBA')
 data = np.array(img)
 
 r, g, b, a = data[:, :, 0], data[:, :, 1], data[:, :, 2], data[:, :, 3]
-
 gray = 0.299 * r + 0.587 * g + 0.114 * b
 
 threshold = 200
-mask = gray < threshold  
+mask = gray < threshold   # буквы (тёмные) → True
 
-new_data = np.zeros((data.shape[0], data.shape[1], 4), dtype=np.uint8)
+# Создаём 1-битное изображение без использования режима '1' в fromarray
+mono_data = np.ones((data.shape[0], data.shape[1]), dtype=np.uint8)
+mono_data[mask] = 0   # буквы – чёрные (0)
 
-new_data[mask, 0] = 0
-new_data[mask, 1] = 0
-new_data[mask, 2] = 0
-new_data[mask, 3] = 255  
+# Преобразуем в 8-битное серое, затем в монохром
+gray_img = Image.fromarray((mono_data * 255).astype(np.uint8), 'L')
+new_img = gray_img.convert('1')   # конвертация в монохром
 
-new_data[~mask, 0] = 255
-new_data[~mask, 1] = 255
-new_data[~mask, 2] = 255
-new_data[~mask, 3] = 0    
+# Обрезка
+bbox = new_img.getbbox()
+if bbox is not None:
+    new_img = new_img.crop(bbox)
 
-new_img = Image.fromarray(new_data, 'RGBA')
 new_img.save(output_path)
-
 print(f"Готово! Сохранено: {output_path}")

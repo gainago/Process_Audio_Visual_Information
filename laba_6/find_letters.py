@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image, ImageDraw
 
-img_path = "result/monochrome_transparent.png"
+img_path = "result/monochrome_transparent.bmp"
 img = Image.open(img_path).convert('RGBA') 
 arr = np.array(img)
 mask = (arr[:, :, 0] < 128).astype(int)     

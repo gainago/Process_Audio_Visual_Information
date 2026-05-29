@@ -92,7 +92,7 @@ if __name__ == "__main__":
     header = ("Letter;W;H;Q1;Q2;Q3;Q4;Q1_rel;Q2_rel;Q3_rel;Q4_rel;"
               "cx;cy;cx_rel;cy_rel;Ix;Iy;Ix_norm;Iy_norm")
     
-    files = sorted([f for f in os.listdir(INPUT_FOLDER) if f.endswith('.png')])
+    files = sorted([f for f in os.listdir(INPUT_FOLDER) if f.endswith('.bmp')])
     
     print(f"Найдено {len(files)} символов, анализ...")
     
