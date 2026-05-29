@@ -11,15 +11,15 @@ alphabet_images_dir = "../laba_5/osmanya_chars"   # нужен только дл
 output_dir = "result"
 ground_truth = "𐒖𐒒𐒏𐒚𐒃𐒗𐒋𐒐𐒖𐒔𐒖𐒕𐒒𐒝𐒐𐒝𐒈𐒔𐒖𐒖𐒆𐒖𐒕𐒂𐒖𐒔𐒖𐒕"
 
-# ========== ВЫБОР МЕТРИКИ ==========
+# ВЫБОР МЕТРИКИ 
 similarity_metric = 'ncc'  # 'euclidean_features' или 'ncc'
-# ====================================
+
 
 os.makedirs(output_dir, exist_ok=True)
 
-# ========== 1. Загрузка изображения и сегментации ==========
-img = Image.open(input_image_path).convert('1')  # 1-битный монохром
-img_array = np.array(img, dtype=np.uint8)  # 0 = чёрный (буква), 1 = белый (фон)
+
+img = Image.open(input_image_path).convert('1')  
+img_array = np.array(img, dtype=np.uint8)  
 
 with open(segmentation_csv, 'r') as f:
     reader = csv.reader(f, delimiter=';')
@@ -28,7 +28,6 @@ with open(segmentation_csv, 'r') as f:
 
 print(f"Найдено {len(bboxes)} символов для распознавания.")
 
-# ========== 2. Загрузка эталонов (в зависимости от метрики) ==========
 alphabet_features = []   # для признаковой метрики
 alphabet_images = {}     # для NCC
 
@@ -37,9 +36,9 @@ if similarity_metric == 'euclidean_features':
     with open(alphabet_features_csv, 'r') as f:
         reader = csv.DictReader(f, delimiter=';')
         for row in reader:
-            # Извлекаем чистый символ (отбрасываем префикс U104xx_)
+
             full_letter = row['Letter']
-            letter = full_letter.split('_')[-1]  # например, '𐒗'
+            letter = full_letter.split('_')[-1]  
             
             mass = int(row['Q1']) + int(row['Q2']) + int(row['Q3']) + int(row['Q4'])
             area = int(row['W']) * int(row['H'])
@@ -53,17 +52,17 @@ if similarity_metric == 'euclidean_features':
                 'features': np.array([mass_norm, cx_rel, cy_rel, Ix_norm, Iy_norm])
             })
 else:
-    # Загружаем бинарные изображения эталонов (для NCC)
+   
     for fname in os.listdir(alphabet_images_dir):
         if fname.endswith('.bmp'):
-            # Извлекаем чистый символ из имени файла (отбрасываем префикс)
+            
             full_name = fname.replace('.bmp', '')
-            letter = full_name.split('_')[-1]  # например, '𐒗'
+            letter = full_name.split('_')[-1]  
             
             img_letter = Image.open(os.path.join(alphabet_images_dir, fname)).convert('1')
-            alphabet_images[letter] = np.array(img_letter, dtype=np.uint8)  # 0 = чёрный, 1 = белый
+            alphabet_images[letter] = np.array(img_letter, dtype=np.uint8)  
 
-# ========== 3. Вспомогательные функции для NCC ==========
+
 def resize_to_fixed_size(binary_img, size=(32, 32)):
     """Приводит бинарное изображение к фиксированному размеру (32x32)"""
     pil_img = Image.fromarray((binary_img * 255).astype(np.uint8))
@@ -84,12 +83,12 @@ def ncc_similarity(img1, img2):
         return 0
     return numerator / denominator
 
-# ========== 4. Обработка каждого символа ==========
+
 all_hypotheses = []
 best_letters = []
 
 for idx, (x1, y1, x2, y2) in enumerate(bboxes, start=1):
-    subimg = img_array[y1:y2+1, x1:x2+1]  # 0 = чёрный, 1 = белый
+    subimg = img_array[y1:y2+1, x1:x2+1]  
     
     # Сохраняем вырезку
     letter_dir = os.path.join(output_dir, f"letter_{idx}")
@@ -130,7 +129,6 @@ for idx, (x1, y1, x2, y2) in enumerate(bboxes, start=1):
         similarities.sort(key=lambda x: x[1], reverse=True)
         
     else:  # similarity_metric == 'ncc'
-        # ---- Нормированная кросс-корреляция ----
         subimg_fixed = resize_to_fixed_size(subimg)
         similarities = []
         for letter, ref_img in alphabet_images.items():
@@ -142,7 +140,7 @@ for idx, (x1, y1, x2, y2) in enumerate(bboxes, start=1):
     all_hypotheses.append(similarities)
     best_letters.append(similarities[0][0])
 
-# ========== 5. Сохранение гипотез ==========
+# Сохранение результатов
 with open(os.path.join(output_dir, "hypotheses_ncc.txt"), 'w', encoding='utf-8') as f:
     for i, hyp in enumerate(all_hypotheses, start=1):
         hyp_str = ", ".join([f"(\"{letter}\", {sim:.3f})" for letter, sim in hyp])
@@ -150,7 +148,6 @@ with open(os.path.join(output_dir, "hypotheses_ncc.txt"), 'w', encoding='utf-8')
 
 print(f"Гипотезы сохранены в result/hypotheses_ncc.txt (метрика: {similarity_metric})")
 
-# ========== 6. Лучшие гипотезы и сравнение с истиной ==========
 best_string = ''.join(best_letters)
 print("\n===== Лучшие гипотезы (первый столбец) =====")
 print(best_string)
