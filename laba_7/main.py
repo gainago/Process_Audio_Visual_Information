@@ -3,7 +3,6 @@ import csv
 import numpy as np
 from PIL import Image
 
-# ========== Параметры ==========
 input_image_path = "../laba_6/result/monochrome_transparent.bmp"
 segmentation_csv = "../laba_6/segmentation_coords.csv"
 alphabet_features_csv = "../laba_5/osmanya_features.csv"
@@ -11,12 +10,9 @@ alphabet_images_dir = "../laba_5/osmanya_chars"   # нужен только дл
 output_dir = "result"
 ground_truth = "𐒖𐒒𐒏𐒚𐒃𐒗𐒋𐒐𐒖𐒔𐒖𐒕𐒒𐒝𐒐𐒝𐒈𐒔𐒖𐒖𐒆𐒖𐒕𐒂𐒖𐒔𐒖𐒕"
 
-# ВЫБОР МЕТРИКИ 
 similarity_metric = 'ncc'  # 'euclidean_features' или 'ncc'
 
-
 os.makedirs(output_dir, exist_ok=True)
-
 
 img = Image.open(input_image_path).convert('1')  
 img_array = np.array(img, dtype=np.uint8)  
@@ -90,7 +86,6 @@ best_letters = []
 for idx, (x1, y1, x2, y2) in enumerate(bboxes, start=1):
     subimg = img_array[y1:y2+1, x1:x2+1]  
     
-    # Сохраняем вырезку
     letter_dir = os.path.join(output_dir, f"letter_{idx}")
     os.makedirs(letter_dir, exist_ok=True)
     Image.fromarray((subimg * 255).astype(np.uint8)).convert('L').save(
@@ -98,9 +93,8 @@ for idx, (x1, y1, x2, y2) in enumerate(bboxes, start=1):
     )
     
     if similarity_metric == 'euclidean_features':
-        # ---- Евклидово расстояние по признакам ----
         height, width = subimg.shape
-        binary = 1 - subimg  # буква = 1, фон = 0
+        binary = 1 - subimg 
         y_coords, x_coords = np.where(binary == 1)
         mass = np.sum(binary)
         area = width * height
@@ -149,7 +143,7 @@ with open(os.path.join(output_dir, "hypotheses_ncc.txt"), 'w', encoding='utf-8')
 print(f"Гипотезы сохранены в result/hypotheses_ncc.txt (метрика: {similarity_metric})")
 
 best_string = ''.join(best_letters)
-print("\n===== Лучшие гипотезы (первый столбец) =====")
+print("\nЛучшие гипотезы (первый столбец) ")
 print(best_string)
 
 if ground_truth:
@@ -163,7 +157,7 @@ if ground_truth:
         else:
             errors.append((i+1, best, truth))
     accuracy = correct / total * 100 if total > 0 else 0
-    print(f"\n===== Сравнение с истиной =====")
+    print(f"\nСравнение с истиной")
     print(f"Всего символов: {total}")
     print(f"Верно: {correct}")
     print(f"Ошибок: {total - correct}")

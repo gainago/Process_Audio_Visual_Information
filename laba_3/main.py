@@ -22,7 +22,7 @@ def rank_filter_3x3_rank7_9(img: np.ndarray) -> np.ndarray:
         for x in range(1, w - 1):
             window = img[y-1:y+2, x-1:x+2].flatten()
             window_sorted = np.sort(window)
-            result[y, x] = window_sorted[6]  # индекс 6 = 7-й элемент
+            result[y, x] = window_sorted[6]
     return result
 
 
@@ -31,7 +31,7 @@ if __name__ == '__main__':
     halftone_path = 'input/photo_halftone.png'
     monochrome_path = 'input/photo_monochrome.png' 
 
-    print("\n--- Полутоновое изображение ---")
+    print("\nПолутоновое изображение")
     gray = load_grayscale(halftone_path)
 
     gray_filtered = rank_filter_3x3_rank7_9(gray)
@@ -47,7 +47,7 @@ if __name__ == '__main__':
     save_image(diff_gray, 'results/photo_diff_halftone.png')
     print("Разностное полутоновое (модуль разности): results/photo_diff_halftone.png")
 
-    print("\n--- Монохромное изображение ---")
+    print("\nМонохромное изображение")
     mono = load_grayscale(monochrome_path)
 
     mono_filtered = rank_filter_3x3_rank7_9(mono)
@@ -57,5 +57,3 @@ if __name__ == '__main__':
     diff_mono = np.abs(mono.astype(int) - mono_filtered.astype(int)).astype(np.uint8) #это работает так же как xor
     save_image(diff_mono, 'results/photo_diff_monochrome.png')
     print("Разностное монохромное (хог): results/photo_diff_monochrome.png")
-
-    print("\nЗадание выполнено полностью (оба пункта для полутона и монохрома).")

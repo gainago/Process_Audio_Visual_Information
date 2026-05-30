@@ -116,8 +116,7 @@ if __name__ == "__main__":
         
         profile_x, profile_y = profiles
         
-        # Извлекаем только код Unicode (например, U10480) для заголовка, чтобы не было предупреждений
-        letter_display = letter.split('_')[0]   # или просто letter.replace('_', ' ')
+        letter_display = letter.split('_')[0] 
         
         plot_and_save_profile(
             profile_x, 
@@ -141,5 +140,5 @@ if __name__ == "__main__":
             row_str = ';'.join(str(v) for v in row)
             f.write(row_str + '\n')
     
-    print(f"\nГотово! Данные сохранены в '{OUTPUT_CSV}'.")
+    print(f"\nДанные сохранены в '{OUTPUT_CSV}'.")
     print(f"Профили сохранены в папке '{OUTPUT_PROFILES_FOLDER}'.")

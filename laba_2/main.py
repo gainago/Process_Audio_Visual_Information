@@ -50,7 +50,6 @@ def binarize_wan(gray: np.ndarray, window_size: int = 15, k: float = 0.2) -> np.
             mean_win = np.mean(window)
             std_win = np.std(window)  
             
-            # Порог по WAN
             threshold = mean_win + k * (std_win - global_std)
             
             if gray[y, x] > threshold:

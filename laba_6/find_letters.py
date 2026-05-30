@@ -40,7 +40,6 @@ print(f"Найдено символов: {len(all_chars)}")
 
 draw = ImageDraw.Draw(img)
 for (x1, y1, x2, y2) in all_chars:
-    # Толщина линии = 2 пикселя, цвет = зелёный (0, 255, 0)
     draw.rectangle([x1, y1, x2, y2], outline=(0, 255, 0, 255), width=2)
 
 output_path = "result/segmented_on_original_72.png"

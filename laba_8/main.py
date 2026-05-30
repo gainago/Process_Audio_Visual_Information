@@ -198,4 +198,4 @@ for image_file in image_files:
     print(f"График сохранён: {output_filename}")
     plt.close()
 
-print("\n✅ Все изображения обработаны! Результаты сохранены в папке 'output'.")
+print("\nВсе изображения обработаны! Результаты сохранены в папке 'output'.")

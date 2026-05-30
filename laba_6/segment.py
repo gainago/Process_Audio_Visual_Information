@@ -1,7 +1,7 @@
 import os
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.ticker import MaxNLocator  # добавляем импорт
+from matplotlib.ticker import MaxNLocator 
 from PIL import Image
 
 def plot_char_profiles(img_path, save_path_prefix):
@@ -14,21 +14,19 @@ def plot_char_profiles(img_path, save_path_prefix):
     
     plt.figure(figsize=(10, 4))
     
-    # Горизонтальный профиль
     plt.subplot(1, 2, 1)
     plt.bar(range(len(h_profile)), h_profile, color='black')
     plt.title("Горизонтальный профиль (по строкам)")
     plt.xlabel("Строка")
     plt.ylabel("Сумма")
-    plt.gca().yaxis.set_major_locator(MaxNLocator(integer=True))  # целые числа на Y
+    plt.gca().yaxis.set_major_locator(MaxNLocator(integer=True))
     
-    # Вертикальный профиль
     plt.subplot(1, 2, 2)
     plt.bar(range(len(v_profile)), v_profile, color='black')
     plt.title("Вертикальный профиль (по столбцам)")
     plt.xlabel("Столбец")
     plt.ylabel("Сумма")
-    plt.gca().yaxis.set_major_locator(MaxNLocator(integer=True))  # целые числа на Y
+    plt.gca().yaxis.set_major_locator(MaxNLocator(integer=True))
     
     plt.tight_layout()
     plt.savefig(f"{save_path_prefix}.png")

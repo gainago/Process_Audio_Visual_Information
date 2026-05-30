@@ -27,17 +27,14 @@ def rgb_to_hsi(rgb: np.ndarray) -> tuple:
     G = rgb[:, :, 1].astype(float) / 255.0
     B = rgb[:, :, 2].astype(float) / 255.0
 
-    # Intensity 
     I = (R + G + B) / 3.0
 
-    # Saturation 
     min_RGB = np.minimum(np.minimum(R, G), B)
     sum_RGB = R + G + B
     S = np.zeros_like(I)
     mask = sum_RGB > 0
     S[mask] = 1.0 - 3.0 * min_RGB[mask] / sum_RGB[mask]
 
-    # Hue 
     H = np.zeros_like(I)
     mask_s = S > 0
     num = 0.5 * ((R - G) + (R - B))
@@ -51,7 +48,6 @@ def rgb_to_hsi(rgb: np.ndarray) -> tuple:
     mask_bg = B > G
     H[mask_s & mask_bg] = 360.0 - H[mask_s & mask_bg]
 
-    # нормализуем H к [0, 255]
     H_norm = H / 360.0 * 255.0
     S_norm = S * 255.0
     I_norm = I * 255.0
@@ -154,9 +150,6 @@ if __name__ == '__main__':
 
     os.makedirs("results", exist_ok=True)
 
-    print("\n--- Часть 1: Цветовые модели ---")
-
-    # 1.1 Выделение компонент R, G, B
     R, G, B = extract_channels(original)
 
     R_color = np.zeros_like(original)
@@ -180,7 +173,7 @@ if __name__ == '__main__':
     save_image(inverted_img, "results/inverted_brightness.png")
     print("Изображение с инвертированной яркостью сохранено.")
 
-    print("\n--- Часть 2: Передискретизация ---")
+    print("\n Передискретизация")
 
     M = 2
     stretched = stretch_image(original, M)
@@ -202,5 +195,3 @@ if __name__ == '__main__':
     one_pass = one_pass_resampling(original, K_float)
     save_image(one_pass, f"results/one_pass_K{K_float}.png")
     print("Результат однопроходной передискретизации сохранён.")
-
-    print("\nВсе задания выполнены. Результаты в папке 'results'.")
