@@ -139,6 +139,3 @@ if __name__ == "__main__":
         for row in data_rows:
             row_str = ';'.join(str(v) for v in row)
             f.write(row_str + '\n')
-    
-    print(f"\nДанные сохранены в '{OUTPUT_CSV}'.")
-    print(f"Профили сохранены в папке '{OUTPUT_PROFILES_FOLDER}'.")

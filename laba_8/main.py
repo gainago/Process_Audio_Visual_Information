@@ -197,5 +197,3 @@ for image_file in image_files:
     plt.savefig(output_filename, dpi=150)
     print(f"График сохранён: {output_filename}")
     plt.close()
-
-print("\nВсе изображения обработаны! Результаты сохранены в папке 'output'.")

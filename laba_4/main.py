@@ -87,7 +87,5 @@ def main():
         Image.fromarray(binary_g).save(binary_save_path)
         print(f"Сохранена бинаризованная G (порог {threshold}): {binary_save_path}")
 
-    print("\nВсе изображения сохранены в папке ./result/")
-
 if __name__ == "__main__":
     main()

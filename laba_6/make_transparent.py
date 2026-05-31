@@ -27,4 +27,3 @@ if bbox is not None:
     new_img = new_img.crop(bbox)
 
 new_img.save(output_path)
-print(f"Готово! Сохранено: {output_path}")

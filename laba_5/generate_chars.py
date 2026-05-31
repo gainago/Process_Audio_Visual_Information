@@ -14,8 +14,6 @@ try:
     font = ImageFont.truetype(FONT_PATH, FONT_SIZE)
     print("Шрифт Noto Sans Osmanya загружен успешно!")
 except OSError:
-    print(f"Ошибка: Шрифт {FONT_PATH} не найден.")
-    print("Установите его командой: sudo apt install fonts-noto-extra")
     exit()
 
 for char in OSMANYA_LETTERS:
@@ -41,5 +39,3 @@ for char in OSMANYA_LETTERS:
         print(f"Сохранён символ: {char} → {file_path} (размер: {binary.size})")
     else:
         print(f"Ошибка: буква {char} не имеет видимых пикселей.")
-
-print("Генерация завершена!")

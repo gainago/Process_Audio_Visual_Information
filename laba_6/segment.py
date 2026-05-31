@@ -41,5 +41,3 @@ for fname in sorted(os.listdir(source_dir)):
         name = fname.replace(".bmp", "")
         path = os.path.join(source_dir, fname)
         plot_char_profiles(path, os.path.join(output_dir, f"profile_{name}"))
-
-print(f"Готово! Профили сохранены в папке {output_dir}")
