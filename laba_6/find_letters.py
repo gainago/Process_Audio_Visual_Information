@@ -24,13 +24,13 @@ def find_blocks(profile, threshold=0, min_len=1):
         blocks.append((start, len(profile)-1))
     return blocks
 
-rows = find_blocks(h_profile, threshold=0, min_len=0)
+rows = find_blocks(h_profile, threshold=0, min_len=1)
 
 all_chars = []
 for y1, y2 in rows:
     row_mask = mask[y1:y2+1, :]
     v_profile = row_mask.sum(axis=0)
-    cols = find_blocks(v_profile, threshold=0, min_len=0)
+    cols = find_blocks(v_profile, threshold=0, min_len=1)
     for x1, x2 in cols:
         all_chars.append((x1, y1, x2, y2))
 
