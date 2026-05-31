@@ -3,14 +3,15 @@ import csv
 import numpy as np
 from PIL import Image
 
-input_image_path = "../laba_6/result/monochrome_transparent.bmp"
+#input_image_path = "../laba_6/result/monochrome_transparent.bmp"
+input_image_path = "../laba_6/to_parse_72.bmp"
 segmentation_csv = "../laba_6/segmentation_coords.csv"
 alphabet_features_csv = "../laba_5/osmanya_features.csv"
 alphabet_images_dir = "../laba_5/osmanya_chars"   # нужен только для NCC
 output_dir = "result"
 ground_truth = "𐒖𐒒𐒏𐒚𐒃𐒗𐒋𐒐𐒖𐒔𐒖𐒕𐒒𐒝𐒐𐒝𐒈𐒔𐒖𐒖𐒆𐒖𐒕𐒂𐒖𐒔𐒖𐒕"
 
-similarity_metric = 'ncc'  # 'euclidean_features' или 'ncc'
+similarity_metric = 'euclidean_features'  # 'euclidean_features' или 'ncc'
 
 os.makedirs(output_dir, exist_ok=True)
 
@@ -60,13 +61,11 @@ else:
 
 
 def resize_to_fixed_size(binary_img, size=(32, 32)):
-    """Приводит бинарное изображение к фиксированному размеру (32x32)"""
     pil_img = Image.fromarray((binary_img * 255).astype(np.uint8))
     resized = pil_img.resize(size, Image.Resampling.NEAREST)
     return np.array(resized) // 255
 
 def ncc_similarity(img1, img2):
-    """Нормированная кросс-корреляция для бинарных изображений (0/1)"""
     a = 2 * img1.astype(np.float32) - 1
     b = 2 * img2.astype(np.float32) - 1
     mu_a = np.mean(a)
@@ -135,12 +134,12 @@ for idx, (x1, y1, x2, y2) in enumerate(bboxes, start=1):
     best_letters.append(similarities[0][0])
 
 # Сохранение результатов
-with open(os.path.join(output_dir, "hypotheses_ncc.txt"), 'w', encoding='utf-8') as f:
+with open(os.path.join(output_dir, "hypotheses_euclidean_72.txt"), 'w', encoding='utf-8') as f:
     for i, hyp in enumerate(all_hypotheses, start=1):
         hyp_str = ", ".join([f"(\"{letter}\", {sim:.3f})" for letter, sim in hyp])
         f.write(f"{i}: [{hyp_str}]\n")
 
-print(f"Гипотезы сохранены в result/hypotheses_ncc.txt (метрика: {similarity_metric})")
+print(f"Гипотезы сохранены в result/hypotheses_euclidean_72.txt (метрика: {similarity_metric})")
 
 best_string = ''.join(best_letters)
 print("\nЛучшие гипотезы (первый столбец) ")

@@ -3,7 +3,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 OSMANYA_LETTERS = "𐒀𐒁𐒂𐒃𐒄𐒅𐒆𐒇𐒈𐒉𐒊𐒋𐒌𐒍𐒎𐒏𐒐𐒑𐒒𐒓𐒔𐒕𐒖𐒗𐒘𐒙𐒚𐒛𐒜𐒝"
 
-FONT_SIZE = 72
+FONT_SIZE = 52
 FONT_PATH = "NotoSansOsmanya-Regular.ttf"
 
 output_folder = "osmanya_chars_72"
