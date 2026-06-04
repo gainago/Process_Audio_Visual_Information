@@ -3,7 +3,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 # Фраза для генерации
 TEXT = "𐒖𐒒 𐒏𐒚 𐒃𐒗𐒋𐒐𐒖𐒔𐒖𐒕 𐒒𐒝𐒐𐒝𐒈𐒔𐒖𐒖𐒆𐒖𐒕 𐒂𐒖𐒔𐒖𐒕"
-
+#TEXT = "𐒀 𐒁 𐒂 𐒃 𐒄 𐒅 𐒆 𐒇 𐒈 𐒉 𐒊 𐒋 𐒌 𐒍 𐒎 𐒏 𐒐 𐒑 𐒒 𐒓 𐒔 𐒕 𐒖 𐒗 𐒘 𐒙 𐒚 𐒛 𐒜 𐒝"
 FONT_SIZE = 72
 FONT_PATH = "../laba_5/NotoSansOsmanya-Regular.ttf"
 

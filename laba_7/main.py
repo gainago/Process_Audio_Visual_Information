@@ -4,8 +4,8 @@ import numpy as np
 from PIL import Image
 
 #input_image_path = "../laba_6/result/monochrome_transparent.bmp"
-input_image_path = "../laba_6/to_parse_72.bmp"
-segmentation_csv = "../laba_6/segmentation_coords.csv"
+input_image_path = "../laba_6/to_parse_72.bmp" # при теста  72 pt заменить на  ../laba_6/to_parse_72.bmp
+segmentation_csv = "../laba_6/segmentation_coords_72.csv" # при тесте 72pt заменить на ../laba_6/segmentation_coords_72.csv
 alphabet_features_csv = "../laba_5/osmanya_features.csv"
 alphabet_images_dir = "../laba_5/osmanya_chars"   # нужен только для NCC
 output_dir = "result"
@@ -134,12 +134,12 @@ for idx, (x1, y1, x2, y2) in enumerate(bboxes, start=1):
     best_letters.append(similarities[0][0])
 
 # Сохранение результатов
-with open(os.path.join(output_dir, "hypotheses_euclidean_72.txt"), 'w', encoding='utf-8') as f:
+with open(os.path.join(output_dir, "hypotheses_euclidean_52.txt"), 'w', encoding='utf-8') as f:
     for i, hyp in enumerate(all_hypotheses, start=1):
         hyp_str = ", ".join([f"(\"{letter}\", {sim:.3f})" for letter, sim in hyp])
         f.write(f"{i}: [{hyp_str}]\n")
 
-print(f"Гипотезы сохранены в result/hypotheses_euclidean_72.txt (метрика: {similarity_metric})")
+print(f"Гипотезы сохранены в result/hypotheses_euclidean_52.txt (метрика: {similarity_metric})")
 
 best_string = ''.join(best_letters)
 print("\nЛучшие гипотезы (первый столбец) ")
