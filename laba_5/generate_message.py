@@ -15,7 +15,6 @@ except OSError:
     print("Ошибка: шрифт не найден.")
     exit()
 
-# Создаём большое изображение (достаточно широкое и высокое)
 img = Image.new('L', (2000, 500), 255)
 draw = ImageDraw.Draw(img)
 
